@@ -1165,20 +1165,22 @@ void PQFlashIndex<T, LabelT>::cached_beam_search(const T *query1, const uint64_t
     float *query_float = pq_query_scratch->aligned_query_float;
     float *query_rotated = pq_query_scratch->rotated_query;
 
-    // if inner product, we laso normalize the query and set the last coordinate
-    // to 0 (this is the extra coordindate used to convert MIPS to L2 search)
-    if (metric == diskann::Metric::INNER_PRODUCT)
+    // normalization step. for cosine, we simply normalize the query
+    // for mips, we normalize the first d-1 dims, and add a 0 for last dim, since an extra coordinate was used to convert MIPS to L2 search
+    if (metric == diskann::Metric::INNER_PRODUCT || metric == diskann::Metric::COSINE)
     {
-        for (size_t i = 0; i < this->_data_dim - 1; i++)
+        uint32_t inherent_dim = (metric == diskann::Metric::COSINE) ? this->_data_dim : this->_data_dim -1;  
+        for (size_t i = 0; i < inherent_dim; i++)
         {
             aligned_query_T[i] = query1[i];
             query_norm += query1[i] * query1[i];
         }
-        aligned_query_T[this->_data_dim - 1] = 0;
+        if (metric == diskann::Metric::INNER_PRODUCT)
+            aligned_query_T[this->_data_dim - 1] = 0;
 
         query_norm = std::sqrt(query_norm);
 
-        for (size_t i = 0; i < this->_data_dim - 1; i++)
+        for (size_t i = 0; i < inherent_dim; i++)
         {
             aligned_query_T[i] = (T)(aligned_query_T[i] / query_norm);
         }
