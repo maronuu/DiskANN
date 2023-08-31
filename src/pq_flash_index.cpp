@@ -30,7 +30,8 @@ template <typename T, typename LabelT>
 PQFlashIndex<T, LabelT>::PQFlashIndex(std::shared_ptr<AlignedFileReader> &fileReader, diskann::Metric m)
     : reader(fileReader), metric(m), _thread_data(nullptr)
 {
-    if (m == diskann::Metric::COSINE || m == diskann::Metric::INNER_PRODUCT)
+//    if (m == diskann::Metric::COSINE || m == diskann::Metric::INNER_PRODUCT)
+    if (m == diskann::Metric::INNER_PRODUCT)
     {
         if (std::is_floating_point<T>::value)
         {
