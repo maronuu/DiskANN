@@ -1110,7 +1110,8 @@ int build_disk_index(const char *dataFilePath, const char *indexFilePath, const 
         return -1;
     }
 
-    if (!std::is_same<T, float>::value && (compareMetric == diskann::Metric::INNER_PRODUCT || compareMetric == diskann::Metric::COSINE))
+    if (!std::is_same<T, float>::value &&
+        (compareMetric == diskann::Metric::INNER_PRODUCT || compareMetric == diskann::Metric::COSINE))
     {
         std::stringstream stream;
         stream << "Disk-index build currently only supports floating point data for Max "
@@ -1176,7 +1177,9 @@ int build_disk_index(const char *dataFilePath, const char *indexFilePath, const 
     std::string disk_pq_pivots_path = index_prefix_path + "_disk.index_pq_pivots.bin";
     // optional, used if disk index must store pq data
     std::string disk_pq_compressed_vectors_path = index_prefix_path + "_disk.index_pq_compressed.bin";
-    std::string prepped_base = index_prefix_path + "_prepped_base.bin"; // temp file for storing pre-processed base file for cosine/ mips metrics
+    std::string prepped_base =
+        index_prefix_path +
+        "_prepped_base.bin"; // temp file for storing pre-processed base file for cosine/ mips metrics
     bool created_temp_file_for_processed_data = false;
 
     // output a new base file which contains extra dimension with sqrt(1 -
@@ -1196,7 +1199,9 @@ int build_disk_index(const char *dataFilePath, const char *indexFilePath, const 
         diskann::save_bin<float>(norm_file, &max_norm_of_base, 1, 1);
         diskann::cout << timer.elapsed_seconds_for_step("preprocessing data for inner product") << std::endl;
         created_temp_file_for_processed_data = true;
-    } else if (compareMetric == diskann::Metric::COSINE) {
+    }
+    else if (compareMetric == diskann::Metric::COSINE)
+    {
         Timer timer;
         std::cout << "Normalizing data for cosine to temporary file, please ensure there is additional "
                      "(n*d*4) bytes for storing normalized base vectors, "
@@ -1297,7 +1302,7 @@ int build_disk_index(const char *dataFilePath, const char *indexFilePath, const 
 #if defined(RELEASE_UNUSED_TCMALLOC_MEMORY_AT_CHECKPOINTS) && defined(DISKANN_BUILD)
     MallocExtension::instance()->ReleaseFreeMemory();
 #endif
-// Whether it is cosine or inner product, we still L2 metric due to the pre-processing.
+    // Whether it is cosine or inner product, we still L2 metric due to the pre-processing.
     timer.reset();
     diskann::build_merged_vamana_index<T, LabelT>(data_file_to_use.c_str(), diskann::Metric::L2, L, R, p_val,
                                                   indexing_ram_budget, mem_index_path, medoids_path, centroids_path,
@@ -1338,7 +1343,7 @@ int build_disk_index(const char *dataFilePath, const char *indexFilePath, const 
         std::remove(augmented_labels_file.c_str());
         std::remove(labels_file_to_use.c_str());
     }
-    if (created_temp_file_for_processed_data) 
+    if (created_temp_file_for_processed_data)
         std::remove(prepped_base.c_str());
     std::remove(mem_index_path.c_str());
     if (use_disk_pq)

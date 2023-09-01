@@ -35,7 +35,10 @@ PQFlashIndex<T, LabelT>::PQFlashIndex(std::shared_ptr<AlignedFileReader> &fileRe
     {
         if (std::is_floating_point<T>::value)
         {
-            diskann::cout << "Since data is floating point, we assume that it has been appropriately pre-processed (normalization for cosine, and convert-to-l2 by adding extra dimension for MIPS). So we shall invoke an l2 distance function." << std::endl;
+            diskann::cout << "Since data is floating point, we assume that it has been appropriately pre-processed "
+                             "(normalization for cosine, and convert-to-l2 by adding extra dimension for MIPS). So we "
+                             "shall invoke an l2 distance function."
+                          << std::endl;
             metric_to_invoke = diskann::Metric::L2;
         }
         else
@@ -1165,10 +1168,11 @@ void PQFlashIndex<T, LabelT>::cached_beam_search(const T *query1, const uint64_t
     float *query_rotated = pq_query_scratch->rotated_query;
 
     // normalization step. for cosine, we simply normalize the query
-    // for mips, we normalize the first d-1 dims, and add a 0 for last dim, since an extra coordinate was used to convert MIPS to L2 search
+    // for mips, we normalize the first d-1 dims, and add a 0 for last dim, since an extra coordinate was used to
+    // convert MIPS to L2 search
     if (metric == diskann::Metric::INNER_PRODUCT || metric == diskann::Metric::COSINE)
     {
-        uint32_t inherent_dim = (metric == diskann::Metric::COSINE) ? this->_data_dim : this->_data_dim -1;  
+        uint32_t inherent_dim = (metric == diskann::Metric::COSINE) ? this->_data_dim : this->_data_dim - 1;
         for (size_t i = 0; i < inherent_dim; i++)
         {
             aligned_query_T[i] = query1[i];
