@@ -30,15 +30,13 @@ template <typename T, typename LabelT>
 PQFlashIndex<T, LabelT>::PQFlashIndex(std::shared_ptr<AlignedFileReader> &fileReader, diskann::Metric m)
     : reader(fileReader), metric(m), _thread_data(nullptr)
 {
-//    if (m == diskann::Metric::COSINE || m == diskann::Metric::INNER_PRODUCT)
-    if (m == diskann::Metric::INNER_PRODUCT)
+    diskann::Metric metric_to_invoke = m;
+    if (m == diskann::Metric::COSINE || m == diskann::Metric::INNER_PRODUCT)
     {
         if (std::is_floating_point<T>::value)
         {
-            diskann::cout << "Cosine metric chosen for (normalized) float data."
-                             "Changing distance to L2 to boost accuracy."
-                          << std::endl;
-            metric = diskann::Metric::L2;
+            diskann::cout << "Since data is floating point, we assume that it has been appropriately pre-processed (normalization for cosine, and convert-to-l2 by adding extra dimension for MIPS). So we shall invoke an l2 distance function." << std::endl;
+            metric_to_invoke = diskann::Metric::L2;
         }
         else
         {
@@ -48,8 +46,8 @@ PQFlashIndex<T, LabelT>::PQFlashIndex(std::shared_ptr<AlignedFileReader> &fileRe
         }
     }
 
-    this->_dist_cmp.reset(diskann::get_distance_function<T>(metric));
-    this->_dist_cmp_float.reset(diskann::get_distance_function<float>(metric));
+    this->_dist_cmp.reset(diskann::get_distance_function<T>(metric_to_invoke));
+    this->_dist_cmp_float.reset(diskann::get_distance_function<float>(metric_to_invoke));
 }
 
 template <typename T, typename LabelT> PQFlashIndex<T, LabelT>::~PQFlashIndex()
