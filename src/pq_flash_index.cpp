@@ -1172,7 +1172,7 @@ void PQFlashIndex<T, LabelT>::cached_beam_search(const T *query1, const uint64_t
     // convert MIPS to L2 search
     if (metric == diskann::Metric::INNER_PRODUCT || metric == diskann::Metric::COSINE)
     {
-        uint32_t inherent_dim = (metric == diskann::Metric::COSINE) ? this->_data_dim : this->_data_dim - 1;
+        uint64_t inherent_dim = (metric == diskann::Metric::COSINE) ? this->_data_dim : (uint64_t)(this->_data_dim - 1);
         for (size_t i = 0; i < inherent_dim; i++)
         {
             aligned_query_T[i] = query1[i];
