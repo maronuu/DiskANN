@@ -1191,7 +1191,7 @@ int build_disk_index(const char *dataFilePath, const char *indexFilePath, const 
         std::cout << "Using Inner Product search, so need to pre-process base "
                      "data into temp file. Please ensure there is additional "
                      "(n*(d+1)*4) bytes for storing pre-processed base vectors, "
-                     "apart from the intermin indices and final index."
+                     "apart from the interim indices created by DiskANN and the final index."
                   << std::endl;
         data_file_to_use = prepped_base;
         float max_norm_of_base = diskann::prepare_base_for_inner_products<T>(base_file, prepped_base);
@@ -1205,7 +1205,7 @@ int build_disk_index(const char *dataFilePath, const char *indexFilePath, const 
         Timer timer;
         std::cout << "Normalizing data for cosine to temporary file, please ensure there is additional "
                      "(n*d*4) bytes for storing normalized base vectors, "
-                     "apart from the intermin indices and final index."
+                     "apart from the interim indices created by DiskANN and the final index."
                   << std::endl;
         data_file_to_use = prepped_base;
         diskann::normalize_data_file(base_file, prepped_base);
