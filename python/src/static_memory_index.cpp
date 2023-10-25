@@ -67,7 +67,7 @@ NeighborsAndDistances<StaticIdType> StaticMemoryIndex<DT>::batch_search(
 
     omp_set_num_threads(static_cast<int32_t>(_num_threads));
 
-#pragma omp parallel for schedule(dynamic, 1) default(none) shared(num_queries, queries, knn, complexity, ids, dists)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(num_queries, queries, knn, complexity, ids, dists, ep_id)
     for (int64_t i = 0; i < (int64_t)num_queries; i++)
     {
         _index.search(queries.data(i), knn, complexity, ids.mutable_data(i), dists.mutable_data(i), ep_id);

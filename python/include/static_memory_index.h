@@ -24,11 +24,11 @@ template <typename DT> class StaticMemoryIndex
                       uint32_t num_threads, uint32_t initial_search_complexity);
 
     NeighborsAndDistances<StaticIdType> search(py::array_t<DT, py::array::c_style | py::array::forcecast> &query,
-                                               uint64_t knn, uint64_t complexity);
+                                               uint64_t knn, uint64_t complexity, uint32_t ep_id);
 
     NeighborsAndDistances<StaticIdType> batch_search(
         py::array_t<DT, py::array::c_style | py::array::forcecast> &queries, uint64_t num_queries, uint64_t knn,
-        uint64_t complexity, uint32_t num_threads);
+        uint64_t complexity, uint32_t num_threads, uint32_t ep_id);
 
   private:
     diskann::Index<DT, StaticIdType, filterT> _index;
