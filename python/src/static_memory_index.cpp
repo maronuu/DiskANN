@@ -21,7 +21,7 @@ diskann::Index<DT, StaticIdType, filterT> static_index_builder(const diskann::Me
     return diskann::Index<DT>(m, dimensions, num_points,
                               nullptr,                                                           // index write params
                               std::make_shared<diskann::IndexSearchParams>(index_search_params), // index search params
-                              0,                                                                 // num frozen points
+                              0,      // num_frozen_pts                                                       // num frozen points
                               false,                                                             // not a dynamic_index
                               false,                                                             // no enable_tags/ids
                               false,  // no concurrent_consolidate,
@@ -42,19 +42,23 @@ StaticMemoryIndex<DT>::StaticMemoryIndex(const diskann::Metric m, const std::str
 
 template <typename DT>
 NeighborsAndDistances<StaticIdType> StaticMemoryIndex<DT>::search(
-    py::array_t<DT, py::array::c_style | py::array::forcecast> &query, const uint64_t knn, const uint64_t complexity)
+    py::array_t<DT, py::array::c_style | py::array::forcecast> &query,
+    const uint64_t knn, const uint64_t complexity,
+    const uint32_t ep_id)
 {
     py::array_t<StaticIdType> ids(knn);
     py::array_t<float> dists(knn);
     std::vector<DT *> empty_vector;
-    _index.search(query.data(), knn, complexity, ids.mutable_data(), dists.mutable_data());
+    _index.search(query.data(), knn, complexity, ids.mutable_data(), dists.mutable_data(), ep_id);
     return std::make_pair(ids, dists);
 }
 
 template <typename DT>
 NeighborsAndDistances<StaticIdType> StaticMemoryIndex<DT>::batch_search(
-    py::array_t<DT, py::array::c_style | py::array::forcecast> &queries, const uint64_t num_queries, const uint64_t knn,
-    const uint64_t complexity, const uint32_t num_threads)
+    py::array_t<DT, py::array::c_style | py::array::forcecast> &queries,
+    const uint64_t num_queries, const uint64_t knn,
+    const uint64_t complexity, const uint32_t num_threads,
+    const uint32_t ep_id)
 {
     const uint32_t _num_threads = num_threads != 0 ? num_threads : omp_get_num_procs();
     py::array_t<StaticIdType> ids({num_queries, knn});
@@ -66,7 +70,7 @@ NeighborsAndDistances<StaticIdType> StaticMemoryIndex<DT>::batch_search(
 #pragma omp parallel for schedule(dynamic, 1) default(none) shared(num_queries, queries, knn, complexity, ids, dists)
     for (int64_t i = 0; i < (int64_t)num_queries; i++)
     {
-        _index.search(queries.data(i), knn, complexity, ids.mutable_data(i), dists.mutable_data(i));
+        _index.search(queries.data(i), knn, complexity, ids.mutable_data(i), dists.mutable_data(i), ep_id);
     }
 
     return std::make_pair(ids, dists);
