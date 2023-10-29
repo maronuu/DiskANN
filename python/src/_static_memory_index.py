@@ -185,3 +185,58 @@ class StaticMemoryIndex:
             num_threads=num_threads,
             ep_id=ep_id,
         )
+
+    def batch_search_with_eps(
+        self, queries: VectorLikeBatch, k_neighbors: int, complexity: int, num_threads: int, ep_ids: VectorLikeBatch,
+    ) -> QueryResponseBatch:
+        """
+        Searches the static, in memory index for many query vectors in a 2d numpy array.
+
+        numpy array dtype must match index.
+
+        This search is parallelized and far more efficient than searching for each vector individually.
+
+        :param queries: 2d numpy array, with column dimensionality matching the index and row dimensionality being the
+            number of queries intended to search for in parallel. Dtype must match dtype of the index.
+        :type queries: numpy.ndarray
+        :param k_neighbors: Number of neighbors to be returned. If query vector exists in index, it almost definitely
+            will be returned as well, so adjust your ``k_neighbors`` as appropriate. (> 0)
+        :type k_neighbors: int
+        :param complexity: Size of list to use while searching. List size increases accuracy at the cost of latency. Must
+            be at least k_neighbors in size.
+        :type complexity: int
+        :param num_threads: Number of threads to use when searching this index. (>= 0), 0 = num_threads in system
+        :type num_threads: int
+        :return: Returns a tuple of 2-d numpy ndarrays; each row corresponds to the query vector in the same index,
+            and elements in row corresponding from 1..k_neighbors approximate nearest neighbors. The second ndarray
+            contains the distances, of the same form: row index will match query index, column index refers to
+            1..k_neighbors distance. These are aligned arrays.
+        """
+
+        _queries = _castable_dtype_or_raise(queries, expected=self._vector_dtype, message=f"StaticMemoryIndex expected a query vector of dtype of {self._vector_dtype}")
+        # _assert(len(_queries.shape) == 2, "queries must must be 2-d np array")
+        # _assert(
+        #     _queries.shape[1] == self._dimensions,
+        #     f"query vectors must have the same dimensionality as the index; index dimensionality: {self._dimensions}, "
+        #     f"query dimensionality: {_queries.shape[1]}"
+        # )
+        # _assert_is_positive_uint32(k_neighbors, "k_neighbors")
+        # _assert_is_positive_uint32(complexity, "complexity")
+        # _assert_is_nonnegative_uint32(num_threads, "num_threads")
+
+        # if k_neighbors > complexity:
+        #     warnings.warn(
+        #         f"k_neighbors={k_neighbors} asked for, but list_size={complexity} was smaller. Increasing {complexity} to {k_neighbors}"
+        #     )
+        #     complexity = k_neighbors
+
+        num_queries = _queries.shape[0]
+        return self._index.batch_search_with_eps(
+            queries=_queries,
+            num_queries=num_queries,
+            knn=k_neighbors,
+            complexity=complexity,
+            num_threads=num_threads,
+            ep_ids=ep_ids,
+        )
+
