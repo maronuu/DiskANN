@@ -87,7 +87,7 @@ class StaticMemoryIndex:
             initial_search_complexity=initial_search_complexity,
         )
 
-    def search(self, query: VectorLike, k_neighbors: int, complexity: int) -> QueryResponse:
+    def search(self, query: VectorLike, k_neighbors: int, complexity: int, ep_id: int = 0) -> QueryResponse:
         """
         Searches the static in memory index by a single query vector in a 1d numpy array.
 
@@ -130,10 +130,10 @@ class StaticMemoryIndex:
                 f"k_neighbors={k_neighbors} asked for, but list_size={complexity} was smaller. Increasing {complexity} to {k_neighbors}"
             )
             complexity = k_neighbors
-        return self._index.search(query=_query, knn=k_neighbors, complexity=complexity)
+        return self._index.search(query=_query, knn=k_neighbors, complexity=complexity, ep_id=ep_id)
 
     def batch_search(
-        self, queries: VectorLikeBatch, k_neighbors: int, complexity: int, num_threads: int
+        self, queries: VectorLikeBatch, k_neighbors: int, complexity: int, num_threads: int, ep_id: int = 0
     ) -> QueryResponseBatch:
         """
         Searches the static, in memory index for many query vectors in a 2d numpy array.
@@ -183,4 +183,5 @@ class StaticMemoryIndex:
             knn=k_neighbors,
             complexity=complexity,
             num_threads=num_threads,
+            ep_id=ep_id,
         )

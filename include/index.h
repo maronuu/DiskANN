@@ -133,7 +133,8 @@ template <typename T, typename TagT = uint32_t, typename LabelT = uint32_t> clas
     // can customize L on a per-query basis without tampering with "Parameters"
     template <typename IDType>
     DISKANN_DLLEXPORT std::pair<uint32_t, uint32_t> search(const T *query, const size_t K, const uint32_t L,
-                                                           IDType *indices, float *distances = nullptr);
+                                                           IDType *indices, float *distances = nullptr,
+                                                           const uint32_t ep_id = 0);
 
     // Initialize space for res_vectors before calling.
     DISKANN_DLLEXPORT size_t search_with_tags(const T *query, const uint64_t K, const uint32_t L, TagT *tags,
