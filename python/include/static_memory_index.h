@@ -28,6 +28,12 @@ class StaticMemoryIndex
 
     NeighborsAndDistances<StaticIdType> batch_search(py::array_t<DT, py::array::c_style | py::array::forcecast> &queries,
                                            uint64_t num_queries, uint64_t knn, uint64_t complexity, uint32_t num_threads, uint32_t ep_id);
+
+    NeighborsAndDistances<StaticIdType> batch_search_with_eps(
+        py::array_t<DT, py::array::c_style | py::array::forcecast> &queries, uint64_t num_queries, uint64_t knn,
+        uint64_t complexity, uint32_t num_threads,
+        py::array_t<uint32_t, py::array::c_style | py::array::forcecast> &ep_ids);
+
   private:
     diskann::Index<DT, StaticIdType, filterT> _index;
 };

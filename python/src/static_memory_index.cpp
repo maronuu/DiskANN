@@ -70,6 +70,29 @@ NeighborsAndDistances<StaticIdType> StaticMemoryIndex<DT>::batch_search(
     return std::make_pair(ids, dists);
 }
 
+template <typename DT>
+NeighborsAndDistances<StaticIdType> StaticMemoryIndex<DT>::batch_search_with_eps(
+    py::array_t<DT, py::array::c_style | py::array::forcecast> &queries, const uint64_t num_queries, const uint64_t knn,
+    const uint64_t complexity, const uint32_t num_threads,
+    py::array_t<uint32_t, py::array::c_style | py::array::forcecast> &ep_ids)
+{
+    const uint32_t _num_threads = num_threads != 0 ? num_threads : omp_get_num_threads();
+    py::array_t<StaticIdType> ids({num_queries, knn});
+    py::array_t<float> dists({num_queries, knn});
+    std::vector<DT *> empty_vector;
+
+    omp_set_num_threads(static_cast<int32_t>(_num_threads));
+
+#pragma omp parallel for schedule(dynamic, 1) default(none)                                                            \
+    shared(num_queries, queries, knn, complexity, ids, dists, ep_ids)
+    for (int64_t i = 0; i < (int64_t)num_queries; i++)
+    {
+        _index.search(queries.data(i), knn, complexity, ids.mutable_data(i), dists.mutable_data(i), *ep_ids.data(i));
+    }
+
+    return std::make_pair(ids, dists);
+}
+
 template class StaticMemoryIndex<float>;
 template class StaticMemoryIndex<uint8_t>;
 template class StaticMemoryIndex<int8_t>;

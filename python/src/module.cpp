@@ -57,7 +57,9 @@ template <typename T> inline void add_variant(py::module_ &m, const Variant &var
              "initial_search_complexity"_a)
         .def("search", &diskannpy::StaticMemoryIndex<T>::search, "query"_a, "knn"_a, "complexity"_a, "ep_id"_a)
         .def("batch_search", &diskannpy::StaticMemoryIndex<T>::batch_search, "queries"_a, "num_queries"_a, "knn"_a,
-             "complexity"_a, "num_threads"_a, "ep_id"_a);
+             "complexity"_a, "num_threads"_a, "ep_id"_a)
+        .def("batch_search_with_eps", &diskannpy::StaticMemoryIndex<T>::batch_search_with_eps, "queries"_a, "num_queries"_a, "knn"_a,
+             "complexity"_a, "num_threads"_a, "ep_ids"_a);
 
     py::class_<diskannpy::DynamicMemoryIndex<T>>(m, variant.dynamic_memory_index_name.c_str())
         .def(py::init<const diskann::Metric, const size_t, const size_t, const uint32_t, const uint32_t, const bool,
